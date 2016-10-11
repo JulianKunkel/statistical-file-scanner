@@ -51,6 +51,13 @@ function run_thread (){
  tail -n $TAIL thread-filelist-$THREAD | while IFS= read -r LINE; do
    FILE=$(echo $LINE | cut -d " " -f 2-)
    SIZE=$(echo $LINE | cut -d " " -f 1)
+
+   if [[ $SIZE == "AGAIN" ]] ; then  # Optimization, note that killing the threads may result on duplicated lines in the output file, i.e., a small error in the compute
+     echo "Already processed: $FILE" >> thread-output-$THREAD
+     POS=$(($POS + 1))
+     continue
+   fi
+
    FILE_PROCESSING=$(sql_wrapper "replace into ongoing (filename,position,thread) VALUES(\"$FILE\", $POS, $THREAD); select thread from ongoing where filename = \"$FILE\" union select filename from completed where filename = \"$FILE\"")
 
    POS=$(($POS + 1))
