@@ -15,11 +15,13 @@ function scanner(){
 }
 
 for d in $dirs ; do
-  echo "Scanning $d"
-  (  scanner $TARGET/$d ) > files-$d.txt &
-  if [[ $(jobs|wc -l) -gt 100 ]] ; then
-     echo "Waiting"
-     wait
+  if [[ -d "$d" ]]; then
+    echo "Scanning $d"
+    (  scanner $TARGET/$d ) > files-$d.txt &
+    if [[ $(jobs|wc -l) -gt 100 ]] ; then
+       echo "Waiting"
+       wait
+    fi
   fi
 done
 
