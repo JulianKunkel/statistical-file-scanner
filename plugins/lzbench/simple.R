@@ -40,10 +40,9 @@ o = dbGetQuery(con,'select * from p limit 1' )
 compressors = colnames(o)[3:ncol(o)]
 compressors = unique(substr(compressors,3,nchar(compressors)))
 
-r = dbGetQuery(con,'select * from p join f on p.fid == f.fid' )
-
-r$filetype = as.factor(r$filetype)
-r$cdotype = as.factor(r$cdotype)
+#r = dbGetQuery(con,'select * from p join f on p.fid == f.fid' )
+#r$filetype = as.factor(r$filetype)
+#r$cdotype = as.factor(r$cdotype)
 
 ### plotting filetype graph
 plottype = function(tbl, name){
@@ -82,16 +81,6 @@ plottype(tbl, "filetypeChosen")
 tbl = dbGetQuery(con,'select cdotype as filetype, sum(chosen) as count from f chosen group by cdotype' )
 plottype(tbl, "cdotypeChosen")
 
-######
-
-for (C in compressors ){
-    size = r[, sprintf("ss%s", C)]
-    r[, sprintf("ratio_%s", C)] = r[, sprintf("sc%s", C)] / size
-    r[, sprintf("rcMiBs_%s", C)] = size / r[, sprintf("tt%s", C)] / MiB * 1e9
-    r[, sprintf("rdMiBs_%s", C)] = size / r[, sprintf("td%s", C)] / MiB * 1e9
-    # be careful rdMiBs is sometimes 0 !
-}
-
 
 meanStatistics <- function(compressors) {
   tbl = data.frame(compressors)
@@ -103,20 +92,48 @@ meanStatistics <- function(compressors) {
     # select cdotype as filetype, sum(ttmemcpy*chosen) as tt, sum(tdmemcpy*chosen) as td, sum(scmemcpy*chosen)/sum(ssmemcpy*chosen) as ratio, f.chosen as chosen  from f join p on f.fid = p.fid group by cdotype;
 
     # Summarize the values for each file:
-    r = dbGetQuery(con, sprintf('select cdotype as filetype, project, sum(tt%s) as tt, sum(td%s) as td, sum(sc%s)/sum(ss%s) as ratio, ss%s as size, sc%s as sc, f.chosen as chosen  from f join p on f.fid = p.fid group by p.fid', C, C, C, C, C, C))
+    r = dbGetQuery(con, sprintf('select cdotype as filetype, project, sum(tt%s) as tt, sum(td%s) as td, sum(sc%s)/sum(ss%s) as ratio, sum(ss%s) as size, sum(sc%s) as sc, f.chosen as chosen  from f join p on f.fid = p.fid where sc%s != 0 group by p.fid', C, C, C, C, C, C, C))
+    r$filetype = as.factor(r$filetype)
+    r$tt = r$tt / 1e6
+    r$td = r$td / 1e6
 
     # Compute the mean based on the counts
     #b = ddply(t,~fid,summarise,size=sum(ss), sc=sum(sc))
     sum_chosen = sum(r$chosen)
     tbl$ratio[which(tbl$compressors == C)] = sum(r$ratio * r$chosen) / sum_chosen
 
-    tbl$compressMiB[which(tbl$compressors == C)] = sum(r$size / r$tt * r$chosen) / sum_chosen  / MiB * 1e6
-    tbl$decompressMiB[which(tbl$compressors == C)] = sum(r$size / r$td * r$chosen) / sum_chosen  / MiB * 1e6
+    tbl$compressMiB[which(tbl$compressors == C)] = sum(r$size / r$tt * r$chosen) / sum_chosen  / MiB
+    tbl$decompressMiB[which(tbl$compressors == C)] = sum(r$size / r$td * r$chosen) / sum_chosen  / MiB
 
     # Normal computation THAT IS WRONG WITH THE STATISTICAL APPROACH
     tbl$ratioWrongNormalMean[which(tbl$compressors == C)] = mean(r$ratio)
-    tbl$compressMiBWrongNormalMean[which(tbl$compressors == C)] = mean(r$size / r$tt ) / MiB * 1e6
-    tbl$decompressMiBWrongNormalMean[which(tbl$compressors == C)] = mean(r$size / r$td)  / MiB * 1e6
+    tbl$compressMiBWrongNormalMean[which(tbl$compressors == C)] = mean(r$size / r$tt ) / MiB
+    tbl$decompressMiBWrongNormalMean[which(tbl$compressors == C)] = mean(r$size / r$td)  / MiB
+
+    # for the individual files: WITHOUT STATISTICSAL APPROACH
+    ggplot(r, aes(filetype, sc/size)) +  geom_boxplot() + ylab("Compression ratio")
+    ggsave(sprintf("ratio-%s.png", C), width=8)
+
+    ggplot(r, aes(size, tt, colour=filetype)) +  geom_point() + ylab("Compression time in s") + scale_x_log10() + scale_y_log10()
+    ggsave(sprintf("compress-%s.png", C), width=8)
+
+    ggplot(r, aes(size, td, colour=filetype)) +  geom_point() + ylab("Decompression time in s") + scale_x_log10() + scale_y_log10()
+    ggsave(sprintf("decompress-%s.png", C), width=8)
+
+    r$speed = r$size/r$td/MiB
+    ggplot(r, aes(filetype, speed)) +  geom_boxplot() + ylab("Decompression speed in MiB/s")
+    ggsave(sprintf("decompress-cdotypes-%s.png", C), width=8)
+    ggplot(r, aes(speed)) +  geom_density() + ylab("Density") + xlab("Deompression speed in MiB/s")
+    ggsave(sprintf("decompress-density-%s.png", C), width=8)
+
+    r$speed = r$size/r$tt/MiB
+    ggplot(r, aes(filetype, speed)) +  geom_boxplot() + ylab("Compression speed in MiB/s")
+    ggsave(sprintf("compress-cdotypes-%s.png", C), width=8)
+
+    ggplot(r, aes(speed)) +  geom_density() + ylab("Density") + xlab("Compression speed in MiB/s")
+    ggsave(sprintf("compress-density-%s.png", C), width=8)
+
+    #+ scale_colour_gradientn(colours = rainbow(3))
   }
   rownames(tbl) = tbl$compressors
   tbl$compressors = NULL
