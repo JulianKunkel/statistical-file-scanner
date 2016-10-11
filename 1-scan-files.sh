@@ -15,7 +15,7 @@ function scanner(){
 }
 
 for d in $dirs ; do
-  if [[ -d "$d" ]]; then
+  if [[ -d "$TARGET/$d" ]]; then
     echo "Scanning $d"
     (  scanner $TARGET/$d ) > files-$d.txt &
     if [[ $(jobs|wc -l) -gt 100 ]] ; then
