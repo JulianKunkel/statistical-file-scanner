@@ -85,7 +85,7 @@ print()
 def insertFile(data, bufferedLines):
   global keysFile
   global insertedFiles
-  (fileTuples, dataTuples) = parser.parse(bufferedLines)
+  (fileTuples, dataTuples) = parser.parse(bufferedLines, data)
   data.update(fileTuples)
 
   expected = set(["fid", "chosen",  "thread","file","project","size"] + keysFile)

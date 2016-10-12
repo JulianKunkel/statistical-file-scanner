@@ -58,7 +58,7 @@ def cleanVerb(verb):
     else:
         return  verb.replace(" ", "").replace(".", "").replace("-","_")
 
-def parseLZbench(txt):
+def parseLZbench(txt, filename):
     pos = 0
     data = {"pos": 0}
     dataArray = []
@@ -79,7 +79,7 @@ def parseLZbench(txt):
           data["sc" + c] = float(m.group(5))
 
           if float(m.group(3)) == 0:
-              print("Compressor %s failed, ignoring" % (c))
+              print("Compressor %s failed in file %s, ignoring" % (c, filename))
               error = True
     if not error:
         dataArray.append(data)
@@ -89,14 +89,14 @@ class dataParser():
     verbs = ""
     re = re.compile("File types\n(.*)\ncdo filedes: (.*)\nStarting RUN\n(.*)\n", re.MULTILINE | re.DOTALL)
 
-    def parse(self, txt):
+    def parse(self, txt, fileData):
         txt = "".join(txt)
         m = self.re.match(txt)
         data = [{},{}]
         if m:
             ft = m.group(1)
             cdo = m.group(2)
-            data[1] = parseLZbench(m.group(3).split("\n"))
+            data[1] = parseLZbench(m.group(3).split("\n"), fileData["file"])
             data[0]["completefiletype"] = ft
             data[0]["filetype"] = parseType(ft)
             data[0]["completecdotype"] = extractCDOType(cdo)
