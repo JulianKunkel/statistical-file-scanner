@@ -28,9 +28,9 @@ def parseType(typ):
     return typ
 
 def parseCDOType(typ):
-    m = re.match("cdo filedes: Processed (\d+) variable.*,[\t ]*(.*) data.*", typ)
+    m = re.match("Processed (\d+) variable[^\n]*\n(.*) data.*", typ, re.MULTILINE)
     if m:
-        return m.group(2)
+        return m.group(2).strip()
     return "unknown"
 
 def identifyVerbs(files):
