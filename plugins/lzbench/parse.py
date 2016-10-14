@@ -87,7 +87,7 @@ def parseLZbench(txt, filename):
 
 class dataParser():
     verbs = ""
-    re = re.compile("File types\n(.*)\ncdo filedes: (.*)\nStarting RUN\n(.*)\n", re.MULTILINE | re.DOTALL)
+    re = re.compile("File types\n([^\n]*)\n.*cdo filedes: (.*)\nStarting RUN\n(.*)\n", re.MULTILINE | re.DOTALL)
 
     def parse(self, txt, fileData):
         txt = "".join(txt)
