@@ -88,10 +88,19 @@ def insertFile(data, bufferedLines):
   (fileTuples, dataTuples) = parser.parse(bufferedLines, data)
   data.update(fileTuples)
 
-  expected = set(["fid", "chosen",  "thread","file","project","size"] + keysFile)
+  expected = set(["fid", "chosen",  "thread", "file", "project", "size"] + keysFile)
 
   diff = expected.difference(set(data.keys()))
   if len(diff) == 0:
+    # check if it exists
+    sql = 'select fid from f where file = "%s"' % (data["file"])
+    try:
+        fid = conn.execute(sql, data).fetchone()[0]
+        insertTuple(dataTuples, fid)
+        return
+    except:
+        pass
+
     columns = ", ".join(expected)
     placeholders = ':' + ', :'.join(expected)
     sql = 'INSERT INTO f (%s) VALUES (%s)' % (columns, placeholders)
