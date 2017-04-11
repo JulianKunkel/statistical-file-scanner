@@ -42,6 +42,8 @@ def identifyVerbs(files):
         for line in f:
             m = lzbenchRe.match(line)
             if (m):
+              if line.find("/") != -1: # skip wrong lines
+                  continue
               verb = m.group(1)
               if verb not in verbs:
                 verbs[verb] = 0

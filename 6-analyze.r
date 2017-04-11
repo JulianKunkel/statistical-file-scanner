@@ -121,8 +121,8 @@ plottype(tbl, "selected-cdotype")
 for (C in compressors ){
     size = r[, sprintf("ss%s", C)]
     r[, sprintf("ratio_%s", C)] = r[, sprintf("sc%s", C)] / size
-    r[, sprintf("rcMiBs_%s", C)] = size / r[, sprintf("tt%s", C)] / MiB * 1e9
-    r[, sprintf("rdMiBs_%s", C)] = size / r[, sprintf("td%s", C)] / MiB * 1e9
+    r[, sprintf("rcMiBs_%s", C)] = size / r[, sprintf("tt%s", C)] / MiB * 1e6
+    r[, sprintf("rdMiBs_%s", C)] = size / r[, sprintf("td%s", C)] / MiB * 1e6
     # be careful rdMiBs is sometimes 0 !
 }
 
@@ -146,12 +146,12 @@ meanStatistics <- function(r, compressors) {
 
     tbl$ratioCount[which(tbl$compressors == C)] = mean(b$sc / b$size)
     tbl$ratioSize[which(tbl$compressors == C)] = sum(t$sc) / sum(t$ss)
-    tbl$Compress_MiBprosHam[which(tbl$compressors == C)] = sum(t$ss) / sum(t$tt) / MiB * 1e9
-    tbl$Decompress_MiBprosHam[which(tbl$compressors == C)] = sum(t$ss) / sum(t$td) / MiB * 1e9
-    tbl$Compress_MiBpros[which(tbl$compressors == C)] = (1/mean(t$tt/t$ss)) / MiB * 1e9
-    tbl$Decompress_MiBpros[which(tbl$compressors == C)] = (1/mean(t$td/t$ss)) / MiB * 1e9
-    tbl$Compress_MiBprosH[which(tbl$compressors == C)] = mean(t$ss/t$tt) / MiB * 1e9
-    tbl$Decompress_MiBprosH[which(tbl$compressors == C)] = mean(t$ss/t$td) / MiB * 1e9
+    tbl$Compress_MiBprosHam[which(tbl$compressors == C)] = sum(t$ss) / sum(t$tt) / MiB * 1e6
+    tbl$Decompress_MiBprosHam[which(tbl$compressors == C)] = sum(t$ss) / sum(t$td) / MiB * 1e6
+    tbl$Compress_MiBpros[which(tbl$compressors == C)] = (1/mean(t$tt/t$ss)) / MiB * 1e6
+    tbl$Decompress_MiBpros[which(tbl$compressors == C)] = (1/mean(t$td/t$ss)) / MiB * 1e6
+    tbl$Compress_MiBprosH[which(tbl$compressors == C)] = mean(t$ss/t$tt) / MiB * 1e6
+    tbl$Decompress_MiBprosH[which(tbl$compressors == C)] = mean(t$ss/t$td) / MiB * 1e6
   }
   rownames(tbl) = tbl$compressors
   tbl$compressors = NULL
