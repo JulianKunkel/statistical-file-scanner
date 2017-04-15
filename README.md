@@ -1,4 +1,4 @@
-# Statistical-File-Scanner for Data Centers (SFC)
+# Statistical-File-Scanner for Data Centers (SFS)
 
 The statistical-file-scanner utilizes statistics to compute the estimated value for a data characteristics of large data sets
 without actually requiring to scan the full data set.
@@ -14,6 +14,12 @@ It works in different phases,
 5) The output is loaded into a DB (it can also be loaded while the scanning process is ongoing).
 6) Evaluation scripts can create arbitrary reports.
 
+## Modes
+
+SFS supports full and partial scanning mode.
+In full mode, a file is assumed to be scanned completely by a plugin but it shall be prevented to rescan the same file.
+In partial mode, a chunk of a file is scanned (e.g., randomly) and shall be rescanned every time.
+
 ## Plugins
 The particular scanning activity is outsourced into plugins in that folder.
 
@@ -23,7 +29,8 @@ The particular scanning activity is outsourced into plugins in that folder.
 ## Requirements
   * python
   * python-scipy
+  * sqlite3
 
 ## Example execution
  
-  * See example-run-lzbench.sh to run the program.
+  * See example-run-lzbench.sh for an example to run the provided scripts.

@@ -1,5 +1,5 @@
 #!/bin/bash
-../2-select-files.py outfilelist.txt 10000 1 filelist.txt 
+../2-select-files.py 10000 1 filelist.txt | tee outfilelist.txt
 
 echo 
 echo "Please check that the file size is roughly proportional to the number of selections"
@@ -11,7 +11,7 @@ if [ "$CNT" != 9997 ] ;then
 	exit 1
 fi 
 
-CNT=$(cat outfilelist.txt |wc -l)
+CNT=$(cat outfilelist.txt |grep work | wc -l)
 
 if [ "$CNT" != 3 ] ;then
 	echo "Test failed, number of files scanned must be 3"

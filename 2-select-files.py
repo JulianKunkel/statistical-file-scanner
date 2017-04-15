@@ -11,6 +11,13 @@ if len(sys.argv) < 3:
     print("Synopsis:  <sampleCountPerThread> <threadcount> <filelist1> ...")
     sys.exit(1)
 
+fullMode = (sys.argv[0].find("2-select-files.py") > -1)
+
+if fullMode:
+	print("Full mode")
+else:
+	print("Partial mode")
+
 sampleCount = int(sys.argv[1])
 threadcount = int(sys.argv[2])
 
@@ -64,7 +71,7 @@ for threadNum in range(1, threadcount + 1):
     for s in selected:
       countperfile[s]+=1;
       w = files[s]
-      if not (s in seen or seen_add(s)):
+      if not fullMode or not (s in seen or seen_add(s)):
         f.write("%d %s\n" % (w[1], w[0]))
         totalsize = totalsize + w[1]
       else:

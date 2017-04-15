@@ -13,8 +13,10 @@ START=$start
 END=$(($start+$count - 1))
 
 # manage two tables, one for the files that have been completed and one that are currently ongoing
-echo "create table completed (filename text, thread int, CONSTRAINT name_unique UNIQUE (filename));" | sqlite3 status.db
-echo "create table ongoing (filename text, position int, thread int PRIMARY KEY);" | sqlite3 status.db
+if [ ! -e status.db ] ; then
+  echo "create table completed (filename text, thread int, CONSTRAINT name_unique UNIQUE (filename));" | sqlite3 status.db
+  echo "create table ongoing (filename text, position int, thread int PRIMARY KEY);" | sqlite3 status.db
+fi
 
 function sql_wrapper() {
   SQL="$1"
@@ -66,7 +68,7 @@ function run_thread (){
  	    echo "Already processed: $FILE" >> thread-output-$THREAD
  		  continue
  	 fi
-   echo $T processing $FILE
+   echo Thread $THREAD processing $FILE
    if [[ ! -e "$FILE" ]] ; then
      echo "Processing invalid, file deleted: $FILE" >> thread-output-$THREAD
      sql_wrapper "insert into completed (filename, thread) VALUES(\"$FILE\", $THREAD)" false
@@ -89,13 +91,13 @@ function run_thread (){
 
    cat thread-tmp-$THREAD >> thread-output-$THREAD
 
-   sql_wrapper "insert into completed (filename, thread) VALUES(\"$FILE\", $THREAD)" false
+   RES=$(sql_wrapper "insert into completed (filename, thread) VALUES(\"$FILE\", $THREAD)" false)
  done
- sql_wrapper "replace into ongoing (filename,position,thread) VALUES(\"\", $FILE_COUNT, $THREAD)" false
+ RES=$(sql_wrapper "replace into ongoing (filename,position,thread) VALUES(\"\", $FILE_COUNT, $THREAD)" false)
  rm thread-tmp-$THREAD 2>/dev/null
 
  PROC_FILES_END=$(sql_wrapper "select count(*) from completed where thread = $THREAD")
- echo "$T completed, processed: " $(($PROC_FILES_END - $PROC_FILES_START)) files
+ echo "Thread $THREAD completed, processed: " $(($PROC_FILES_END - $PROC_FILES_START)) files
 }
 
 

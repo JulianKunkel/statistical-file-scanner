@@ -1,4 +1,5 @@
 #!/bin/bash
+MAX_THREADS=100
 
 # This is the file scanner
 
@@ -18,7 +19,7 @@ for d in $dirs ; do
   if [[ -d "$TARGET/$d" ]]; then
     echo "Scanning $d"
     (  scanner $TARGET/$d ) > files-$d.txt &
-    if [[ $(jobs|wc -l) -gt 100 ]] ; then
+    if [[ $(jobs|wc -l) -gt $MAX_THREADS ]] ; then
        echo "Waiting"
        wait
     fi

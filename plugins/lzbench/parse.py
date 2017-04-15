@@ -80,9 +80,9 @@ def parseLZbench(txt, filename):
           data["ss" + c] = float(m.group(4))
           data["sc" + c] = float(m.group(5))
 
-          if float(m.group(3)) == 0:
-              print("Compressor %s failed in file %s, ignoring" % (c, filename))
-              error = True
+          #if float(m.group(3)) == 0:
+              #print("Compressor %s failed in file %s, ignoring" % (c, filename))
+              #error = True
     if not error:
         dataArray.append(data)
     return dataArray
