@@ -7,5 +7,5 @@ file -b "$FILE"
 cdo filedes "$FILE"
 
 echo "Starting RUN"
-$LZ -eall -o3 -p3 -b10240 -R -z "$FILE" |sed "s#$FILE##"
-
+$LZ -eall -o4 -p3 -b10240 -R -z "$FILE" |sed "s#$FILE##"
+#$LZ -elz4fast,17 -o4 -p3 -b10240 -R -z "$FILE" |sed "s#$FILE##"
