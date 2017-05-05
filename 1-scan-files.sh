@@ -12,7 +12,7 @@ TARGET="$1"
 dirs=$(ls $TARGET)
 
 function scanner(){
-	ls -lR --file-type  --time-style=iso  $1  2>/dev/null
+	ls -lRH --file-type  --time-style=iso  $1  2>/dev/null
 }
 
 for d in $dirs ; do
