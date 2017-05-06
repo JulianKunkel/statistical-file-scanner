@@ -5,6 +5,7 @@ import re
 import sys
 import numpy
 import scipy
+import codecs
 from collections import defaultdict
 
 if len(sys.argv) < 3:
@@ -30,7 +31,7 @@ totalsize = 0
 filelist = sys.argv[3:]
 
 for filen in filelist:
-    f = open(filen, 'r')
+    f = codecs.open(filen, 'r', encoding='utf-8', errors='ignore')
     for line in f:
         m = re_path.match(line)
         if m:
